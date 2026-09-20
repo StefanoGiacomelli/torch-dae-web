@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://torch-dae.local/schemas/technical-card.schema.json",
+  "type": "object",
+  "required": ["identity"],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "required": ["technical_card_id"],
+      "properties": { "technical_card_id": { "type": "string", "minLength": 1 } }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+---
+import Navbar from '../components/navigation/Navbar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  active: 'models' | 'technical';
+}
+
+const { title, active } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Canonical torch-dae Model Card and Technical Card catalogue." />
+    <title>{title} · torch-dae</title>
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('torch-dae-theme');
+        const theme = stored === 'day' || stored === 'night'
+          ? stored
+          : matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme === 'night' ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <Navbar active={active} />
+      <main><slot /></main>
+    </div>
+  </body>
+</html>

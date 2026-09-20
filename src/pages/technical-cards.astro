@@ -1,0 +1,38 @@
+---
+import catalogueData from '../generated/catalogue.json';
+import AppLayout from '../layouts/AppLayout.astro';
+import type { CatalogueIndex } from '../data/types/catalogue';
+
+const catalogue = catalogueData as CatalogueIndex;
+const modelNames = new Map(catalogue.models.map((model) => [model.id, model.displayName]));
+---
+
+<AppLayout title="Technical Cards" active="technical">
+  <section class="page">
+    <header>
+      <p class="eyebrow">Canonical runtime evidence</p>
+      <h1>Technical Cards</h1>
+      <p class="lede">A Phase 01 skeleton retaining the runtime context required for later comparability rules.</p>
+    </header>
+    <div class="meta-strip">
+      <span><strong>{catalogue.metadata.technicalCardCount}</strong> validated Technical Cards</span>
+      <span><strong>{new Set(catalogue.technicalCards.map((card) => card.context.executionContextFingerprint)).size}</strong> execution contexts</span>
+    </div>
+    <table class="technical-table">
+      <thead><tr><th>Model</th><th>Card</th><th>Backend</th><th>Thread regime</th><th>Protocol</th><th>Conditions</th><th>Energy</th></tr></thead>
+      <tbody>
+        {catalogue.technicalCards.map((card) => (
+          <tr data-technical-card-id={card.id}>
+            <td>{modelNames.get(card.modelId)}</td>
+            <td>{card.id}</td>
+            <td>{card.context.deviceBackend}</td>
+            <td>{card.context.threadRegime ?? 'backend default'}</td>
+            <td>{card.context.protocolId} / {card.context.protocolVersion}</td>
+            <td>{card.conditions.length}</td>
+            <td>{card.energy.measurementKind.replaceAll('_', ' ')} · {card.energy.availability}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</AppLayout>

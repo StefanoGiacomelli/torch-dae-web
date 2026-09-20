@@ -1,0 +1,73 @@
+@import './tokens.css';
+@import './themes.css';
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; min-width: 20rem; min-height: 100%; }
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 60% 5%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 32rem),
+    var(--background);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+button, a { font: inherit; }
+a { color: inherit; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.app-shell { height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.navbar {
+  min-height: 4.25rem;
+  padding: 0.75rem clamp(1rem, 3vw, 3rem);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(16px);
+}
+.brand { display: inline-flex; align-items: center; gap: 0.65rem; text-decoration: none; font-size: 1.45rem; }
+.brand-mark { color: var(--primary); font-size: 1.6rem; transform: rotate(90deg); }
+.tagline { color: var(--text-secondary); font-size: 0.86rem; border-left: 1px solid var(--border-subtle); padding-left: 1.25rem; }
+.navbar nav { display: flex; align-items: center; gap: clamp(0.7rem, 1.5vw, 1.5rem); margin-left: auto; }
+.navbar nav > a { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; padding-block: 0.5rem; }
+.navbar a.active, .navbar nav > a:hover { color: var(--primary); }
+.navbar nav > a.active { box-shadow: 0 2px 0 var(--primary); }
+.theme-toggle { display: inline-flex; padding: 0.2rem; background: var(--surface-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; }
+.theme-toggle button { border: 0; border-radius: 999px; padding: 0.4rem 0.7rem; color: var(--text-secondary); background: transparent; cursor: pointer; }
+.theme-toggle button[aria-pressed='true'] { background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px var(--border-subtle); }
+main { min-height: 0; overflow: auto; }
+.page { width: min(var(--content-max), 100%); min-height: 100%; margin: 0 auto; padding: clamp(1.5rem, 4vw, 4rem); display: flex; flex-direction: column; gap: 1.5rem; }
+.eyebrow { margin: 0 0 0.45rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--primary); font-size: 0.72rem; font-weight: 700; }
+h1 { margin: 0; font-size: clamp(2.3rem, 5vw, 4.6rem); line-height: 0.95; letter-spacing: -0.04em; }
+.lede { margin: 0.7rem 0 0; color: var(--text-secondary); font-size: 1.05rem; }
+.meta-strip { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; color: var(--text-secondary); font-size: 0.82rem; }
+.meta-strip strong { color: var(--text-primary); }
+.card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.skeleton-card { padding: 1.25rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); background: linear-gradient(145deg, var(--surface), var(--surface-elevated)); box-shadow: var(--shadow); }
+.skeleton-card h2 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+.skeleton-card p { margin: 0; color: var(--text-secondary); }
+.pill-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.25rem; }
+.pill { padding: 0.32rem 0.58rem; color: var(--primary); background: color-mix(in srgb, var(--primary) 11%, transparent); border-radius: 999px; font-size: 0.75rem; }
+.technical-table { width: 100%; border-collapse: collapse; overflow: hidden; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+.technical-table th, .technical-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border-subtle); font-size: 0.83rem; }
+.technical-table th { color: var(--text-secondary); font-weight: 600; }
+
+@media (max-width: 62rem) {
+  .tagline, .navbar nav > a[target='_blank'] { display: none; }
+  .card-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 40rem) {
+  .navbar { align-items: flex-start; }
+  .navbar nav { flex-wrap: wrap; justify-content: flex-end; }
+  .technical-table { display: block; overflow-x: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

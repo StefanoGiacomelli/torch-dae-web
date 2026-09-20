@@ -1,0 +1,28 @@
+:root,
+:root[data-theme='day'] {
+  --background: #f5f9fd;
+  --surface: #ffffff;
+  --surface-elevated: #f9fcff;
+  --primary: #1677e8;
+  --accent: #2dbceb;
+  --positive: #24b36b;
+  --warning: #e6a424;
+  --text-primary: #0b1d39;
+  --text-secondary: #5c708c;
+  --border-subtle: rgba(30, 90, 150, 0.15);
+  --shadow: 0 1rem 3rem rgba(32, 80, 120, 0.09);
+}
+
+:root[data-theme='night'] {
+  --background: #06182b;
+  --surface: #0b223d;
+  --surface-elevated: #0e294a;
+  --primary: #2d9cff;
+  --accent: #21d4fd;
+  --positive: #2ddb8a;
+  --warning: #f6b73c;
+  --text-primary: #f3f7fc;
+  --text-secondary: #afc3d9;
+  --border-subtle: rgba(120, 180, 240, 0.2);
+  --shadow: 0 1rem 3rem rgba(0, 0, 0, 0.26);
+}

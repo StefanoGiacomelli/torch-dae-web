@@ -1,0 +1,25 @@
+---
+import { siteConfig } from '../../config/site';
+import { ThemeToggle } from './ThemeToggle';
+
+interface Props {
+  active: 'models' | 'technical';
+}
+
+const { active } = Astro.props;
+---
+
+<header class="navbar">
+  <a class:list={["brand", { active: active === 'models' }]} href="/" aria-label="torch-dae Model Cards">
+    <span class="brand-mark" aria-hidden="true">▥</span>
+    <strong>{siteConfig.title}</strong>
+  </a>
+  <span class="tagline">{siteConfig.tagline}</span>
+  <nav aria-label="Primary navigation">
+    <ThemeToggle client:load />
+    <a class:list={{ active: active === 'technical' }} href="/technical-cards">Technical Cards</a>
+    <a href={siteConfig.links.github} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    <a href={siteConfig.links.documentation} target="_blank" rel="noreferrer">Documentation <span aria-hidden="true">↗</span></a>
+    <a href={siteConfig.links.pypi} target="_blank" rel="noreferrer">PyPI <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>

@@ -1,0 +1,38 @@
+---
+import catalogueData from '../generated/catalogue.json';
+import AppLayout from '../layouts/AppLayout.astro';
+import type { CatalogueIndex } from '../data/types/catalogue';
+
+const catalogue = catalogueData as CatalogueIndex;
+---
+
+<AppLayout title="Model Cards" active="models">
+  <section class="page">
+    <header>
+      <p class="eyebrow">Canonical catalogue foundation</p>
+      <h1>Model Cards</h1>
+      <p class="lede">A Phase 01 skeleton proving validated Model Card data reaches the static UI.</p>
+    </header>
+    <div class="meta-strip" aria-label="Catalogue provenance">
+      <span><strong>{catalogue.metadata.modelCount}</strong> models</span>
+      <span><strong>{catalogue.metadata.technicalCardCount}</strong> Technical Cards</span>
+      <span>Source <strong>{catalogue.metadata.requestedRef}</strong></span>
+      <span>Commit <strong>{catalogue.metadata.resolvedCommitSha.slice(0, 8)}</strong></span>
+    </div>
+    <div class="card-grid">
+      {catalogue.models.map((model) => (
+        <article class="skeleton-card" data-model-id={model.id}>
+          <p class="eyebrow">{model.family}</p>
+          <h2>{model.displayName}</h2>
+          <p>{model.id}</p>
+          <div class="pill-row">
+            <span class="pill">{model.sampleRateHz / 1000} kHz</span>
+            {model.defaultEmbedding?.dimension && <span class="pill">{model.defaultEmbedding.dimension}-D</span>}
+            <span class="pill">{model.lifecycleStatus.replaceAll('_', ' ')}</span>
+            <span class="pill">{model.technicalCardIds.length} runtime contexts</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</AppLayout>
