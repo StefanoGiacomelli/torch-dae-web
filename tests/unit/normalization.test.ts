@@ -12,6 +12,7 @@ const metadata = {
   requestedRef: 'v-test',
   resolvedCommitSha: 'abc123',
   generatedAt: '2026-01-01T00:00:00Z',
+  licenseIdentifier: 'Apache-2.0',
 };
 
 describe('normalizeCatalogue', () => {

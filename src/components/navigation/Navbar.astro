@@ -7,6 +7,12 @@ interface Props {
 }
 
 const { active } = Astro.props;
+
+const externalLinks = [
+  { label: 'GitHub', href: siteConfig.links.github },
+  { label: 'Documentation', href: siteConfig.links.documentation },
+  { label: 'PyPI', href: siteConfig.links.pypi },
+];
 ---
 
 <header class="navbar">
@@ -18,8 +24,24 @@ const { active } = Astro.props;
   <nav aria-label="Primary navigation">
     <ThemeToggle client:load />
     <a class:list={{ active: active === 'technical' }} href="/technical-cards">Technical Cards</a>
-    <a href={siteConfig.links.github} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-    <a href={siteConfig.links.documentation} target="_blank" rel="noreferrer">Documentation <span aria-hidden="true">↗</span></a>
-    <a href={siteConfig.links.pypi} target="_blank" rel="noreferrer">PyPI <span aria-hidden="true">↗</span></a>
+    <span class="navbar-external-links">
+      {externalLinks.map((link) => (
+        <a href={link.href} target="_blank" rel="noreferrer">
+          {link.label} <span aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </span>
+    <details class="navbar-more">
+      <summary aria-label="More external links">
+        More <span aria-hidden="true">⌄</span>
+      </summary>
+      <div class="navbar-more-menu">
+        {externalLinks.map((link) => (
+          <a href={link.href} target="_blank" rel="noreferrer">
+            {link.label} <span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </div>
+    </details>
   </nav>
 </header>

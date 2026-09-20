@@ -21,6 +21,15 @@ function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, 'utf8')) as unknown;
 }
 
+/** Reads the SPDX license identifier from the source snapshot's own `pyproject.toml`. */
+export function readLicenseIdentifier(sourceRoot: string): string | null {
+  const pyprojectPath = resolve(sourceRoot, 'pyproject.toml');
+  if (!existsSync(pyprojectPath)) return null;
+  const contents = readFileSync(pyprojectPath, 'utf8');
+  const match = /^\s*license\s*=\s*"([^"]+)"/m.exec(contents);
+  return match?.[1] ?? null;
+}
+
 export function buildCatalogue(source: ResolvedSource, generatedAt = new Date().toISOString()): CatalogueIndex {
   const modelDirectory = resolve(source.root, 'model_cards');
   const technicalDirectory = resolve(source.root, 'technical_cards');
@@ -53,5 +62,6 @@ export function buildCatalogue(source: ResolvedSource, generatedAt = new Date().
     requestedRef: source.requestedRef,
     resolvedCommitSha: source.resolvedCommitSha,
     generatedAt,
+    licenseIdentifier: readLicenseIdentifier(source.root),
   });
 }

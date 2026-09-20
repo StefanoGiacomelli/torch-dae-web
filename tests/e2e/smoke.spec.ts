@@ -4,7 +4,7 @@ test('Model Cards route renders canonical data and toggles theme', async ({ page
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Model Cards', level: 1 })).toBeVisible();
   await expect(page.locator('[data-model-id]')).toHaveCount(3);
-  await expect(page.locator('astro-island')).not.toHaveAttribute('ssr', { timeout: 10_000 });
+  await expect(page.locator('astro-island[ssr]')).toHaveCount(0, { timeout: 10_000 });
   await page.getByRole('button', { name: /Night/ }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'night');
 });

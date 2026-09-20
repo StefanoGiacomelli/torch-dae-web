@@ -1,0 +1,38 @@
+---
+interface Props {
+  catalogueRef: string;
+  licenseIdentifier: string | null;
+}
+const { catalogueRef, licenseIdentifier } = Astro.props;
+
+const items = [
+  {
+    icon: '📖',
+    title: 'Open source',
+    detail: licenseIdentifier ? `${licenseIdentifier}-licensed torch-dae` : 'torch-dae source available',
+  },
+  { icon: '🔬', title: 'Reproducible evidence', detail: 'Schema-validated cards' },
+  { icon: '🔥', title: 'PyTorch ecosystem', detail: 'Standard PyTorch nn.Module interface' },
+];
+---
+
+<footer class="home-footer">
+  {
+    items.map((item) => (
+      <div class="home-footer-item">
+        <span class="home-footer-icon" aria-hidden="true">{item.icon}</span>
+        <span>
+          <strong>{item.title}</strong>
+          <small>{item.detail}</small>
+        </span>
+      </div>
+    ))
+  }
+  <div class="home-footer-item home-footer-ref">
+    <span class="home-footer-icon" aria-hidden="true">🏷️</span>
+    <span>
+      <strong>torch-dae catalogue</strong>
+      <small>{catalogueRef}</small>
+    </span>
+  </div>
+</footer>

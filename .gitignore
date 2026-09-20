@@ -11,3 +11,4 @@ src/generated/*.json
 *.log
 .DS_Store
 ._*
+.claude/

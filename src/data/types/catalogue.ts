@@ -279,6 +279,8 @@ export interface CatalogueMetadata {
     modelCards: string[];
     technicalCards: string[];
   };
+  /** SPDX identifier read from the canonical source's own `pyproject.toml`; null if undiscoverable. */
+  licenseIdentifier: string | null;
 }
 
 export interface CatalogueIndex {
