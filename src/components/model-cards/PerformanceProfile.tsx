@@ -131,11 +131,14 @@ export function PerformanceProfile({ reference }: PerformanceProfileProps) {
           </dd>
         </div>
       </dl>
-      <p className="performance-scope-note">
-        Mean latency and throughput are per-inference. RSS sampled peak is the host process's sampled
-        peak resident memory. Profile energy totals the full profiling resource pass (including model
-        construction and checkpoint loading) and is not scoped to individual inferences.
-      </p>
+      <details className="performance-scope-detail">
+        <summary>Metric scope notes</summary>
+        <p className="performance-scope-note">
+          Mean latency and throughput are per-inference. RSS sampled peak is the host process's sampled
+          peak resident memory. Profile energy totals the full profiling resource pass (including model
+          construction and checkpoint loading) and is not scoped to individual inferences.
+        </p>
+      </details>
     </section>
   );
 }

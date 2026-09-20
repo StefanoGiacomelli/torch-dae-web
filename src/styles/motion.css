@@ -1,0 +1,28 @@
+/*
+ * Shared motion system (spec §23). Durations stay inside 150–350ms except the card-expansion
+ * transition, which is intentionally longer because it is a major layout reflow, not a small
+ * state change. `prefers-reduced-motion: reduce` collapses every duration to near-zero and
+ * disables keyframe animations outright (see the block at the bottom of global.css), so nothing
+ * here should be load-bearing for functionality — only for the transition *feel*.
+ */
+:root {
+  --motion-duration-sm: 180ms;
+  --motion-duration-md: 280ms;
+  --motion-duration-lg: 420ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes plot-card-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chart-series-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes panel-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

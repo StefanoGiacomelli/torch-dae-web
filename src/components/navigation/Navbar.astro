@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from '../../config/site';
+import { BrandMark } from '../common/BrandMark';
 import { ThemeToggle } from './ThemeToggle';
 
 interface Props {
@@ -17,7 +18,7 @@ const externalLinks = [
 
 <header class="navbar">
   <a class:list={["brand", { active: active === 'models' }]} href="/" aria-label="torch-dae Model Cards">
-    <span class="brand-mark" aria-hidden="true">▥</span>
+    <span class="brand-mark"><BrandMark size={24} /></span>
     <strong>{siteConfig.title}</strong>
   </a>
   <span class="tagline">{siteConfig.tagline}</span>

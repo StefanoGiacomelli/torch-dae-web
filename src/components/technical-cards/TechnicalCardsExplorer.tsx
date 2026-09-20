@@ -7,6 +7,7 @@ import { defaultExplorerSelection, resolveExplorerState } from '../../data/techn
 import { MAX_SELECTED_MODELS, type ExplorerSelection } from '../../data/technical-cards/types';
 import { parseExplorerQuery, serializeExplorerQuery } from '../../data/technical-cards/urlState';
 import type { CatalogueIndex } from '../../data/types/catalogue';
+import { MetricSparkline } from './MetricSparkline';
 import { RuntimePlots } from './RuntimePlots';
 
 interface Props { catalogue: CatalogueIndex }
@@ -64,12 +65,33 @@ export function TechnicalCardsExplorer({ catalogue }: Props) {
   };
 
   const selectedModels = resolved.selection.modelIds.map((id) => catalogue.models.find((model) => model.id === id)).filter(Boolean);
-  const energySemantics = [...new Set(resolved.points.map(({ card }) => {
+  const energyDetails = resolved.points.map(({ modelId, card }) => {
+    const model = catalogue.models.find((candidate) => candidate.id === modelId);
     const provider = card.energy.provider ? `${card.energy.provider.name} ${card.energy.provider.version}` : 'no provider';
     const privilege = card.energy.privilegeUsed ? 'privileged counters' : 'no privilege';
     const gaps = card.energy.unaccountedComponents.length ? `unaccounted: ${card.energy.unaccountedComponents.join(', ')}` : 'full component coverage';
-    return `${card.energy.measurementKind.replaceAll('_', ' ')} · ${card.energy.availability} · ${provider} · ${privilege} · ${gaps}`;
-  }))].join(' | ');
+    return {
+      modelId,
+      modelName: model?.displayName ?? modelId,
+      availability: card.energy.availability,
+      summary: `${card.energy.measurementKind.replaceAll('_', ' ')} · ${card.energy.availability} · ${provider} · ${privilege} · ${gaps}`,
+    };
+  });
+  // Worst-case state across the selection, used only to pick which non-comparable badge to show —
+  // never to fabricate a numeric value. `complete` never appears here because a card-scoped metric
+  // with every card `complete` (plus matching method/coverage) would already be comparable above.
+  const energyStateBadge = energyDetails.some((detail) => detail.availability === 'failed')
+    ? 'failed'
+    : energyDetails.some((detail) => detail.availability === 'partial')
+      ? 'partial'
+      : energyDetails.length > 0
+        ? 'unavailable'
+        : 'unavailable';
+  const energyStateLabel: Record<typeof energyStateBadge, string> = {
+    failed: 'Measurement failed',
+    partial: 'Partial coverage',
+    unavailable: 'Unavailable',
+  };
   const statusTitle = comparison.status === 'direct'
     ? resolved.selection.modelIds.length === 1 ? 'Canonical runtime context resolved.' : 'Selected cards are directly comparable under the chosen context.'
     : comparison.status === 'partial'
@@ -131,7 +153,7 @@ export function TechnicalCardsExplorer({ catalogue }: Props) {
         </div>
       </section>
 
-      <section className="comparability-banner" role="status" data-status={comparison.status}>
+      <section className="comparability-banner" role="status" aria-live="polite" data-status={comparison.status}>
         <span className="status-icon" aria-hidden="true">{comparison.status === 'direct' ? '✓' : comparison.status === 'partial' ? '!' : '×'}</span>
         <div><strong>{statusTitle}</strong>
           <p>{comparison.reasons.length ? comparison.reasons.map((reason) => reason.message).join(' ') : comparison.resolvedContext ? `${comparison.resolvedContext.backend.toUpperCase()} · ${comparison.resolvedContext.regime.replaceAll('_', ' ')} · batch ${comparison.resolvedContext.batchSize} · ${comparison.resolvedContext.protocolId} v${comparison.resolvedContext.protocolVersion}` : 'Choose models and a shared context.'}</p>
@@ -142,15 +164,34 @@ export function TechnicalCardsExplorer({ catalogue }: Props) {
       <section className="metric-summaries" aria-label="Runtime metric summaries">
         {runtimeMetricRegistry.map((metric) => {
           const comparable = comparison.comparableMetricIds.includes(metric.id);
-          return <article className="metric-card" data-available={comparable} key={metric.id}>
-            <header><div><h2>{metric.shortName}</h2><p>{metric.direction === 'lower' ? 'Lower is better' : metric.direction === 'higher' ? 'Higher is better' : 'Descriptive'}</p></div><span>{metric.unit}</span></header>
+          const sparklineValues = comparable
+            ? resolved.points.map((point) => ({ modelId: point.modelId, value: metric.value(point)!, color: colors[point.modelId]! }))
+            : [];
+          const isEnergy = metric.id === 'profile-energy';
+          return <article className="metric-card" data-available={comparable} data-energy-state={isEnergy ? (comparable ? 'comparable' : energyStateBadge) : undefined} key={metric.id}>
+            <header><div><h2>{metric.shortName}</h2><p>{metric.direction === 'lower' ? 'Lower is better' : metric.direction === 'higher' ? 'Higher is better' : 'Descriptive'}</p></div><MetricSparkline values={sparklineValues} /><span>{metric.unit}</span></header>
             {comparable ? <div className="metric-values">{resolved.points.map((point, index) => {
               const value = metric.value(point)!;
               return <div key={point.modelId} style={{ '--model-color': colors[point.modelId] } as CSSProperties} title={catalogue.models.find((model) => model.id === point.modelId)?.displayName}>
                 <span><i aria-hidden="true" />#{index + 1}</span><strong>{metric.format(value)}</strong>
               </div>;
-            })}</div> : <p className="metric-unavailable">Not mutually available</p>}
-            {metric.id === 'profile-energy' && <small title={energySemantics}>{energySemantics || 'No energy evidence'} · whole profiling resource pass; not per inference.</small>}
+            })}</div> : isEnergy ? (
+              <p className="metric-unavailable">
+                <span className="energy-state-chip" data-state={energyStateBadge}>{energyStateLabel[energyStateBadge]}</span>
+                {' '}— not mutually comparable
+              </p>
+            ) : <p className="metric-unavailable">Not mutually available</p>}
+            {isEnergy && energyDetails.length > 0 && (
+              <details className="energy-detail">
+                <summary>Why{comparable ? '' : ' not comparable'}</summary>
+                <ul>
+                  {energyDetails.map((detail) => (
+                    <li key={detail.modelId}><strong>{detail.modelName}:</strong> {detail.summary}</li>
+                  ))}
+                </ul>
+                <p>Whole profiling resource pass; not per inference or per batch.</p>
+              </details>
+            )}
           </article>;
         })}
       </section>

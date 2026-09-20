@@ -2,6 +2,7 @@ import type { CatalogueMetadata, CatalogueModel, VerificationBackend } from '../
 import type { ReferenceRuntimeContext } from '../../data/derive/referenceContext';
 import { buildRepositoryFileUrl, buildRepositoryRawUrl, formatSourceIdentity } from '../../data/derive/provenance';
 import { formatLifecycleStatus, formatSampleRate, formatTaskLabel } from '../../data/derive/format';
+import { BrandMark } from '../common/BrandMark';
 import { ModelVisual } from './ModelVisual';
 import { PerformanceProfile } from './PerformanceProfile';
 
@@ -63,7 +64,7 @@ export function ModelCard({
           />
           <div className="model-card-kicker">
             <span className="model-card-brand" aria-hidden="true">
-              ▥ torch-dae
+              <BrandMark size={16} /> torch-dae
             </span>
             <span className="model-card-index">#{String(cardNumber).padStart(3, '0')}</span>
           </div>
@@ -93,7 +94,7 @@ export function ModelCard({
         <div className="model-card-surface" role="group" aria-label={`${model.displayName}, selected`}>
           <div className="model-card-kicker">
             <span className="model-card-brand" aria-hidden="true">
-              ▥ torch-dae
+              <BrandMark size={16} /> torch-dae
             </span>
             <span className="model-card-index">#{String(cardNumber).padStart(3, '0')}</span>
             <span className="model-card-selected-badge">★ Selected</span>
@@ -182,9 +183,12 @@ export function ModelCard({
                   </ul>
                 </div>
 
-                <p className="upstream-caveat">
-                  Upstream metrics are officially reported and were not locally reproduced by this catalogue.
-                </p>
+                <details className="upstream-caveat-detail">
+                  <summary>Upstream metric note</summary>
+                  <p className="upstream-caveat">
+                    Upstream metrics are officially reported and were not locally reproduced by this catalogue.
+                  </p>
+                </details>
               </div>
 
               <div className="model-card-side">
@@ -199,44 +203,48 @@ export function ModelCard({
                   </a>
                 )}
 
-                <div className="provenance-links">
-                  {modelCardUrl && (
-                    <a href={modelCardUrl} target="_blank" rel="noreferrer">
-                      Model Card JSON <span aria-hidden="true">↗</span>
-                    </a>
-                  )}
-                  {verificationUrl && (
-                    <a href={verificationUrl} target="_blank" rel="noreferrer">
-                      Verification evidence <span aria-hidden="true">↗</span>
-                    </a>
-                  )}
-                  {reference &&
-                    (() => {
-                      const technicalCardUrl = buildRepositoryFileUrl(
-                        metadata,
-                        reference.technicalCard.provenance.technicalCardPath,
-                      );
-                      const rawMeasurementUrl = buildRepositoryRawUrl(
-                        metadata,
-                        reference.technicalCard.provenance.rawMeasurementPath,
-                      );
-                      return (
-                        <>
-                          {technicalCardUrl && (
-                            <a href={technicalCardUrl} target="_blank" rel="noreferrer">
-                              Technical Card JSON <span aria-hidden="true">↗</span>
-                            </a>
-                          )}
-                          {rawMeasurementUrl && (
-                            <a href={rawMeasurementUrl} target="_blank" rel="noreferrer">
-                              Raw measurement (NPZ) <span aria-hidden="true">↗</span>
-                            </a>
-                          )}
-                        </>
-                      );
-                    })()}
-                </div>
+                <details className="provenance-links-detail">
+                  <summary>Provenance links</summary>
+                  <div className="provenance-links">
+                    {modelCardUrl && (
+                      <a href={modelCardUrl} target="_blank" rel="noreferrer">
+                        Model Card JSON <span aria-hidden="true">↗</span>
+                      </a>
+                    )}
+                    {verificationUrl && (
+                      <a href={verificationUrl} target="_blank" rel="noreferrer">
+                        Verification evidence <span aria-hidden="true">↗</span>
+                      </a>
+                    )}
+                    {reference &&
+                      (() => {
+                        const technicalCardUrl = buildRepositoryFileUrl(
+                          metadata,
+                          reference.technicalCard.provenance.technicalCardPath,
+                        );
+                        const rawMeasurementUrl = buildRepositoryRawUrl(
+                          metadata,
+                          reference.technicalCard.provenance.rawMeasurementPath,
+                        );
+                        return (
+                          <>
+                            {technicalCardUrl && (
+                              <a href={technicalCardUrl} target="_blank" rel="noreferrer">
+                                Technical Card JSON <span aria-hidden="true">↗</span>
+                              </a>
+                            )}
+                            {rawMeasurementUrl && (
+                              <a href={rawMeasurementUrl} target="_blank" rel="noreferrer">
+                                Raw measurement (NPZ) <span aria-hidden="true">↗</span>
+                              </a>
+                            )}
+                          </>
+                        );
+                      })()}
+                  </div>
+                </details>
               </div>
+              <div className="model-card-columns-scroll-hint" aria-hidden="true" />
             </div>
           </div>
         </div>

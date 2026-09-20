@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeCatalogue } from '../../src/data/normalize/normalize';
 import { getReferenceRuntimeContext } from '../../src/data/derive/referenceContext';
-import { getModelWaveformVisual } from '../../src/data/derive/modelVisual';
+import { getModelSpectrogramVisual } from '../../src/data/derive/modelVisual';
 import { buildRepositoryFileUrl, buildRepositoryRawUrl, formatSourceIdentity } from '../../src/data/derive/provenance';
 import { formatEnergyJoules } from '../../src/data/derive/format';
 import { getEvidencedVerificationBackends } from '../../src/data/derive/verification';
@@ -49,25 +49,35 @@ describe('getReferenceRuntimeContext', () => {
   });
 });
 
-describe('getModelWaveformVisual', () => {
+describe('getModelSpectrogramVisual', () => {
   it('is deterministic for the same model id', () => {
-    const first = getModelWaveformVisual('panns-cnn14-16k-map-0438', 'PANNs');
-    const second = getModelWaveformVisual('panns-cnn14-16k-map-0438', 'PANNs');
+    const first = getModelSpectrogramVisual('panns-cnn14-16k-map-0438', 'PANNs');
+    const second = getModelSpectrogramVisual('panns-cnn14-16k-map-0438', 'PANNs');
     expect(first).toEqual(second);
   });
 
   it('differs across model ids', () => {
-    const a = getModelWaveformVisual('model-a', 'PANNs');
-    const b = getModelWaveformVisual('model-b', 'PANNs');
-    expect(a.bars).not.toEqual(b.bars);
+    const a = getModelSpectrogramVisual('model-a', 'PANNs');
+    const b = getModelSpectrogramVisual('model-b', 'PANNs');
+    expect(a.cells).not.toEqual(b.cells);
   });
 
-  it('keeps every bar within the normalized range', () => {
-    const { bars } = getModelWaveformVisual('model-a', 'PANNs');
-    for (const bar of bars) {
-      expect(bar).toBeGreaterThanOrEqual(0.08);
-      expect(bar).toBeLessThanOrEqual(1);
+  it('keeps every cell intensity within the normalized range', () => {
+    const { cells } = getModelSpectrogramVisual('model-a', 'PANNs');
+    for (const row of cells) {
+      for (const cell of row) {
+        expect(cell).toBeGreaterThanOrEqual(0.05);
+        expect(cell).toBeLessThanOrEqual(1);
+      }
     }
+  });
+
+  it('produces the requested grid dimensions', () => {
+    const { cells, cols, rows } = getModelSpectrogramVisual('model-a', 'PANNs', 10, 5);
+    expect(cols).toBe(10);
+    expect(rows).toBe(5);
+    expect(cells).toHaveLength(5);
+    for (const row of cells) expect(row).toHaveLength(10);
   });
 });
 

@@ -191,4 +191,34 @@ test.describe('Model Cards homepage', () => {
       expect(scrollHeight).toBeLessThanOrEqual(clientHeight + 2);
     }
   });
+
+  test('at 1366x768 the complete Runtime verification block is visible in the expanded card without scrolling the detail column', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/');
+    await waitForHydration(page);
+    const container = page.locator('.model-card[data-selected="true"] .model-card-columns');
+    const verification = page.locator('.model-card[data-selected="true"] .runtime-verification');
+    await expect(verification).toBeVisible();
+    // Every backend row (not just the section heading) must be within the initially visible
+    // viewport of the scrollable detail column — no partial clipping of the last row.
+    const rows = verification.locator('li');
+    const rowCount = await rows.count();
+    expect(rowCount).toBeGreaterThan(0);
+    const containerBox = await container.boundingBox();
+    for (let index = 0; index < rowCount; index += 1) {
+      const rowBox = await rows.nth(index).boundingBox();
+      expect(rowBox).not.toBeNull();
+      expect(containerBox).not.toBeNull();
+      expect(rowBox!.y + rowBox!.height).toBeLessThanOrEqual(containerBox!.y + containerBox!.height + 1);
+    }
+    // The complete Performance Profile (all 4 metric rows) must also be initially visible.
+    const metricRows = page.locator('.model-card[data-selected="true"] .metric-row');
+    const metricCount = await metricRows.count();
+    expect(metricCount).toBe(4);
+    for (let index = 0; index < metricCount; index += 1) {
+      const rowBox = await metricRows.nth(index).boundingBox();
+      expect(rowBox).not.toBeNull();
+      expect(rowBox!.y + rowBox!.height).toBeLessThanOrEqual(containerBox!.y + containerBox!.height + 1);
+    }
+  });
 });

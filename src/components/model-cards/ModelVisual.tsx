@@ -1,42 +1,40 @@
-import { getModelWaveformVisual } from '../../data/derive/modelVisual';
+import { getModelSpectrogramVisual } from '../../data/derive/modelVisual';
 
 interface ModelVisualProps {
   modelId: string;
   family: string;
 }
 
-/** First-party, deterministic waveform visual identity for a Model Card. */
+/** First-party, deterministic, theme-aware spectrogram-like identity artwork for a Model Card.
+ * Purely decorative generated texture — never presented as real measured model output. */
 export function ModelVisual({ modelId, family }: ModelVisualProps) {
-  const { bars, hueRotateDeg } = getModelWaveformVisual(modelId, family);
+  const { cells, hueRotateDeg, cols, rows } = getModelSpectrogramVisual(modelId, family);
   const width = 320;
   const height = 160;
-  const gap = 3;
-  const barWidth = width / bars.length - gap;
+  const cellWidth = width / cols;
+  const cellHeight = height / rows;
 
   return (
     <svg
       className="model-visual"
       viewBox={`0 0 ${width} ${height}`}
       role="img"
-      aria-label={`Waveform visual identity for ${family} model ${modelId}`}
+      aria-label={`Decorative generated identity artwork for the ${family} model ${modelId}; not a measured spectrogram`}
       style={{ filter: `hue-rotate(${hueRotateDeg}deg)` }}
     >
-      {bars.map((level, index) => {
-        const barHeight = Math.max(4, level * (height - 16));
-        const x = index * (barWidth + gap);
-        const y = (height - barHeight) / 2;
-        return (
+      {cells.map((rowCells, rowIndex) =>
+        rowCells.map((level, colIndex) => (
           <rect
-            key={index}
-            x={x}
-            y={y}
-            width={barWidth}
-            height={barHeight}
-            rx={barWidth / 2}
-            className="model-visual-bar"
+            key={`${rowIndex}-${colIndex}`}
+            className="model-visual-cell"
+            x={colIndex * cellWidth}
+            y={rowIndex * cellHeight}
+            width={cellWidth + 0.5}
+            height={cellHeight + 0.5}
+            fillOpacity={level}
           />
-        );
-      })}
+        )),
+      )}
     </svg>
   );
 }

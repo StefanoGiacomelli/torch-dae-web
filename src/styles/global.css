@@ -1,5 +1,6 @@
 @import './tokens.css';
 @import './themes.css';
+@import './motion.css';
 
 * { box-sizing: border-box; }
 
@@ -31,7 +32,7 @@ a { color: inherit; }
   backdrop-filter: blur(16px);
 }
 .brand { display: inline-flex; align-items: center; gap: 0.65rem; text-decoration: none; font-size: 1.45rem; }
-.brand-mark { color: var(--primary); font-size: 1.6rem; transform: rotate(90deg); }
+.brand-mark { display: inline-flex; align-items: center; color: var(--primary); }
 .tagline { color: var(--text-secondary); font-size: 0.86rem; border-left: 1px solid var(--border-subtle); padding-left: 1.25rem; }
 .navbar nav { display: flex; align-items: center; gap: clamp(0.7rem, 1.5vw, 1.5rem); margin-left: auto; }
 .navbar nav a { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; padding-block: 0.5rem; }
@@ -105,5 +106,10 @@ h1 { margin: 0; font-size: clamp(2.3rem, 5vw, 4.6rem); line-height: 0.95; letter
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

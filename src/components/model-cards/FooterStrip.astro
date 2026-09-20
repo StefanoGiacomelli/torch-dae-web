@@ -1,18 +1,20 @@
 ---
+import { Icon, type IconName } from '../common/Icon';
+
 interface Props {
   catalogueRef: string;
   licenseIdentifier: string | null;
 }
 const { catalogueRef, licenseIdentifier } = Astro.props;
 
-const items = [
+const items: Array<{ icon: IconName; title: string; detail: string }> = [
   {
-    icon: '📖',
+    icon: 'book',
     title: 'Open source',
     detail: licenseIdentifier ? `${licenseIdentifier}-licensed torch-dae` : 'torch-dae source available',
   },
-  { icon: '🔬', title: 'Reproducible evidence', detail: 'Schema-validated cards' },
-  { icon: '🔥', title: 'PyTorch ecosystem', detail: 'Standard PyTorch nn.Module interface' },
+  { icon: 'flask', title: 'Reproducible evidence', detail: 'Schema-validated cards' },
+  { icon: 'layers', title: 'PyTorch ecosystem', detail: 'Standard PyTorch nn.Module interface' },
 ];
 ---
 
@@ -20,7 +22,7 @@ const items = [
   {
     items.map((item) => (
       <div class="home-footer-item">
-        <span class="home-footer-icon" aria-hidden="true">{item.icon}</span>
+        <span class="home-footer-icon"><Icon name={item.icon} /></span>
         <span>
           <strong>{item.title}</strong>
           <small>{item.detail}</small>
@@ -29,7 +31,7 @@ const items = [
     ))
   }
   <div class="home-footer-item home-footer-ref">
-    <span class="home-footer-icon" aria-hidden="true">🏷️</span>
+    <span class="home-footer-icon"><Icon name="tag" /></span>
     <span>
       <strong>torch-dae catalogue</strong>
       <small>{catalogueRef}</small>
