@@ -11,6 +11,7 @@
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "sync:data": "node --import tsx scripts/sync-data.ts",
     "validate:data": "node --import tsx scripts/validate-data.ts",
+    "audit:comparability": "node --import tsx scripts/audit-comparability.ts",
     "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
     "test": "vitest run",
     "test:e2e": "npm run sync:data && playwright test",
@@ -31,6 +32,7 @@
     "@types/node": "26.6.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vitest": "5.0.1"
