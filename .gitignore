@@ -12,3 +12,24 @@ src/generated/*.json
 .DS_Store
 ._*
 .claude/
+
+# --------------------------------------------------------------------------
+# Local project-control / agent-development artifacts
+# --------------------------------------------------------------------------
+/00_START_HERE.md
+/AGENT_CONTEXT.md
+/REVIEW_WORKFLOW.md
+/SHA256SUMS.txt
+/TORCH_DAE_WEB_SPEC.md
+/prompts/
+/assets/mockups/
+/docs/implementation/
+
+/scripts/create-review-bundle-phase-*.mjs
+/scripts/capture-phase-*-screenshots.mjs
+
+# Optional local agent configuration
+/CLAUDE.md
+/AGENTS.md
+/.claude/
+/.codex/
