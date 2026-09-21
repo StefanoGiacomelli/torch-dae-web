@@ -133,3 +133,28 @@ describe('production source CLI', () => {
     expect(() => resolveLocalSource(fixture.project, fixture.lock, '')).toThrow(/requires TORCH_DAE_REPO_PATH/);
   });
 });
+
+it('defaults direct local resolution to the supplied lock instead of ambient TORCH_DAE_REF', () => {
+  const fixture = fixtureRepository();
+  const previousRef = process.env.TORCH_DAE_REF;
+
+  process.env.TORCH_DAE_REF = 'v0.2.0';
+
+  try {
+    const source = resolveLocalSource(
+      fixture.project,
+      fixture.lock,
+      fixture.repository,
+    );
+
+    expect(source.requestedRef).toBe(fixture.lock.ref);
+    expect(source.resolvedCommitSha).toBe(fixture.releaseCommit);
+    expect(readFileSync(join(source.root, 'catalogue.txt'), 'utf8')).toBe('release\n');
+  } finally {
+    if (previousRef === undefined) {
+      delete process.env.TORCH_DAE_REF;
+    } else {
+      process.env.TORCH_DAE_REF = previousRef;
+    }
+  }
+});

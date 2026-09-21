@@ -113,7 +113,7 @@ export function resolveLocalSource(
   projectRoot: string,
   lock: SourceLock,
   repositoryPath = process.env.TORCH_DAE_REPO_PATH,
-  requestedRef = process.env.TORCH_DAE_REF ?? lock.ref,
+  requestedRef = lock.ref,
 ): ResolvedSource {
   if (!repositoryPath) {
     throw new Error('Local source mode requires TORCH_DAE_REPO_PATH or --repo-path.');
@@ -132,7 +132,7 @@ export function resolveLocalSource(
 export function resolveGithubSource(
   projectRoot: string,
   lock: SourceLock,
-  requestedRef = process.env.TORCH_DAE_REF ?? lock.ref,
+  requestedRef = lock.ref,
   repositoryUrl = `https://github.com/${lock.repository}.git`,
 ): ResolvedSource {
   const cacheParent = resolve(projectRoot, '.cache');
