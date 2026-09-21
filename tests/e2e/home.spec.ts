@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { CatalogueIndex } from '../../src/data/types/catalogue';
+import { waitForVisualStability } from './helpers/visual-stability';
 
 const catalogueUrl = new URL('../../src/generated/catalogue.json', import.meta.url);
 const catalogue: CatalogueIndex = JSON.parse(readFileSync(fileURLToPath(catalogueUrl), 'utf8'));
@@ -185,6 +186,7 @@ test.describe('Model Cards homepage', () => {
     ]) {
       await page.setViewportSize(viewport);
       await page.goto('/');
+      await waitForVisualStability(page);
       const { scrollHeight, clientHeight } = await page.evaluate(() => ({
         scrollHeight: document.documentElement.scrollHeight,
         clientHeight: window.innerHeight,
@@ -197,6 +199,7 @@ test.describe('Model Cards homepage', () => {
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto('/');
     await waitForHydration(page);
+    await waitForVisualStability(page, '.model-card[data-selected="true"]');
     const container = page.locator('.model-card[data-selected="true"] .model-card-columns');
     const verification = page.locator('.model-card[data-selected="true"] .runtime-verification');
     await expect(verification).toBeVisible();

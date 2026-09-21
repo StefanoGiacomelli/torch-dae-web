@@ -408,6 +408,14 @@
   .model-card[data-offset='2'], .model-card[data-offset='-2'] { opacity: 0; pointer-events: none; }
 }
 
+/* Short desktop viewports need a little cross-platform font-metric headroom in the primary
+   information column. Keep all facts and verification rows visible without loosening the strict
+   geometry assertion; taller flagship layouts retain their original spacing. */
+@media (min-width: 48.01rem) and (max-height: 50rem) {
+  .model-card-details .fact-grid { gap: 0.05rem; margin-bottom: 0.12rem; }
+  .model-card-details .runtime-verification { margin-bottom: 0.15rem; }
+}
+
 /*
  * Mobile deviation from the strict desktop non-scroll rule (documented per spec
  * section 5.2 / 23): only the selected card is shown at full size, side cards
