@@ -8,6 +8,8 @@ interface Props {
 }
 
 const { active } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const technicalCardsHref = `${base}technical-cards/`;
 
 const externalLinks = [
   { label: 'GitHub', href: siteConfig.links.github },
@@ -17,14 +19,14 @@ const externalLinks = [
 ---
 
 <header class="navbar">
-  <a class:list={["brand", { active: active === 'models' }]} href="/" aria-label="torch-dae Model Cards">
+  <a class:list={["brand", { active: active === 'models' }]} href={base} aria-label="torch-dae Model Cards">
     <span class="brand-mark"><BrandMark size={24} /></span>
     <strong>{siteConfig.title}</strong>
   </a>
   <span class="tagline">{siteConfig.tagline}</span>
   <nav aria-label="Primary navigation">
     <ThemeToggle client:load />
-    <a class:list={{ active: active === 'technical' }} href="/technical-cards">Technical Cards</a>
+    <a class:list={{ active: active === 'technical' }} href={technicalCardsHref}>Technical Cards</a>
     <span class="navbar-external-links">
       {externalLinks.map((link) => (
         <a href={link.href} target="_blank" rel="noreferrer">

@@ -3,9 +3,10 @@ import { Icon, type IconName } from '../common/Icon';
 
 interface Props {
   catalogueRef: string;
+  resolvedCommitSha: string;
   licenseIdentifier: string | null;
 }
-const { catalogueRef, licenseIdentifier } = Astro.props;
+const { catalogueRef, resolvedCommitSha, licenseIdentifier } = Astro.props;
 
 const items: Array<{ icon: IconName; title: string; detail: string }> = [
   {
@@ -34,7 +35,7 @@ const items: Array<{ icon: IconName; title: string; detail: string }> = [
     <span class="home-footer-icon"><Icon name="tag" /></span>
     <span>
       <strong>torch-dae catalogue</strong>
-      <small>{catalogueRef}</small>
+      <small title={`Resolved source commit ${resolvedCommitSha}`}>{catalogueRef}</small>
     </span>
   </div>
 </footer>

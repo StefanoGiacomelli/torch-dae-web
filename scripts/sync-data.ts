@@ -2,10 +2,11 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCatalogue } from '../src/data/ingest/pipeline';
+import { parseSourceOptions } from '../src/data/ingest/cli';
 import { resolveSource } from '../src/data/ingest/source';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const source = resolveSource(projectRoot);
+const source = resolveSource(projectRoot, parseSourceOptions(process.argv.slice(2)));
 const catalogue = buildCatalogue(source);
 const output = resolve(projectRoot, 'src/generated/catalogue.json');
 mkdirSync(dirname(output), { recursive: true });

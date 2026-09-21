@@ -2,11 +2,13 @@
 
 ## Authority and release lock
 
-The website is a read-only consumer of `StefanoGiacomelli/torch_dae`. `catalogue-source.json` locks the requested `v0.2.0` release to the commit resolved from the public Git tag. Local sync resolves the ref from the source repository's Git object database and verifies the lock. If the tag object is absent, it may use the locked commit SHA only when that commit object exists locally.
+The website is a read-only consumer of `StefanoGiacomelli/torch_dae`. `catalogue-source.json` locks the requested `v0.2.0` release to the commit resolved from the public Git tag. Production sync defaults to GitHub and verifies that the tag resolves to the locked SHA. It fails rather than accepting a moved tag, mutable `main`, fixtures, or a missing release.
 
-Local ingestion never reads the live working tree. It materializes the resolved commit with `git archive` into `.cache/torch-dae-snapshots/<resolved SHA>/` and ingests that immutable snapshot. Cache identity is the full commit SHA. This excludes uncommitted edits, permits source `HEAD` to advance, and requires no checkout, fetch, reset, worktree, or write in the canonical repository. Missing objects fail with guidance to use GitHub mode.
+Local mode is opt-in and requires an explicit `--repo-path`/`TORCH_DAE_REPO_PATH`. It resolves the ref from that checkout's Git object database and verifies the same lock. If the tag object is absent, it may use the locked commit SHA only when that commit object exists locally.
 
-The browser never fetches canonical repository artifacts. `scripts/sync-data.ts` performs build-time ingestion and writes the ignored, disposable `src/generated/catalogue.json`.
+Neither source mode ingests a live working tree. GitHub mode uses its clone only as a Git object/ref cache; local mode uses the explicit checkout only as a Git object database. Both materialize the verified commit with `git archive` into `.cache/torch-dae-snapshots/<resolved SHA>/` and ingest that immutable snapshot. Cache identity is the full commit SHA. This excludes dirty clone/checkout edits, permits source `HEAD` to advance, and requires no checkout, fetch, reset, worktree, or write in the canonical local repository. Missing local objects fail with guidance to use GitHub mode.
+
+The browser never fetches canonical repository artifacts. `scripts/sync-data.ts` performs build-time ingestion and writes the ignored, disposable `src/generated/catalogue.json`. CLI `--ref`, `--source`, and `--repo-path` options make every source override explicit.
 
 ## Validation and discovery
 

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      catalogue_ref:
+        description: Optional torch-dae ref to validate instead of the locked default
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      TORCH_DAE_SOURCE: github
+      TORCH_DAE_REF: ${{ inputs.catalogue_ref || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Use locked catalogue ref when no override was supplied
+        if: ${{ env.TORCH_DAE_REF == '' }}
+        run: echo "TORCH_DAE_REF=$(node -p \"require('./catalogue-source.json').ref\")" >> "$GITHUB_ENV"
+      - run: npm run sync:data
+      - run: npm run validate:data
+      - run: npm run check
+      - run: npm run test
+      - run: npm run audit:comparability
+      - run: npm run audit:catalogue
+      - run: npm run build
+      - run: npm run audit:content
+      - run: npm run audit:performance
+      - run: npm run audit:deployment
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npx playwright test
+      - run: npm run test:a11y
+      - run: npm run test:pages

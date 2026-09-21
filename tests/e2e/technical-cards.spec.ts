@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 async function ready(page: import('@playwright/test').Page) {
-  await page.goto('/technical-cards');
+  await page.goto('/technical-cards/');
   await expect(page.locator('astro-island[ssr]')).toHaveCount(0, { timeout: 10_000 });
 }
 
@@ -73,7 +73,7 @@ test.describe('Technical Cards explorer', () => {
   });
 
   test('restores valid URL state and sanitizes stale context values', async ({ page }) => {
-    await page.goto('/technical-cards?models=panns-resnet38-map-0434&device=stale&regime=stale&protocol=old%400&batch=999&view=comparison');
+    await page.goto('/technical-cards/?models=panns-resnet38-map-0434&device=stale&regime=stale&protocol=old%400&batch=999&view=comparison');
     await expect(page.locator('astro-island[ssr]')).toHaveCount(0, { timeout: 10_000 });
     await expect(page.locator('.model-chip')).toHaveCount(1);
     await expect(page.locator('.view-mode strong')).toHaveText('Single model');
@@ -161,6 +161,6 @@ test.describe('Technical Cards explorer', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await ready(page);
     const duration = await page.locator('.plot-card').first().evaluate((el) => getComputedStyle(el).animationDuration);
-    expect(duration).toBe('1e-05s');
+    expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.00001);
   });
 });

@@ -1,14 +1,31 @@
 # Development
 
+## Runtime and installation
+
+Use Node.js `^22.12.0`, `^24.0.0`, or `>=26.0.0`; `.nvmrc` selects Node 24. Install exactly the locked dependency graph with `npm ci`.
+
 ## Source configuration
 
-Copy `.env.example` values into your shell or command environment. Use Node.js `^22.12.0`, `^24.0.0`, or `>=26.0.0`; this intersection satisfies the pinned Astro 7.3.3, `@astrojs/react` 6.0.6, and Vitest 5.0.1 engine declarations. The validated environment used Node 24.13.0 and npm 11.6.2.
+The default is the production GitHub source locked by `catalogue-source.json`:
 
-The default local checkout is read-only. The resolver looks up the requested ref in its Git object database. For the locked release only, a missing local tag is accepted when the locked commit object itself exists. The exact commit is exported with `git archive` into `.cache/torch-dae-snapshots/<commit>/`; ingestion reads only that immutable snapshot. The resolver never fetches, checks out, resets, creates a worktree, or writes inside the source repository, and the source branch/`HEAD` may advance independently. If the commit object is absent, use GitHub mode or provide another read-only clone containing it.
+```bash
+npm run sync:data
+npm run sync:data -- --ref v0.2.0
+```
 
-GitHub mode requires network access and clones into ignored `.cache/`. `src/generated/catalogue.json` is also ignored because it contains a generation timestamp; `prebuild` regenerates it.
+The GitHub resolver clones the released ref into ignored `.cache/`, records its actual `HEAD`, and rejects it if the configured release resolves to a SHA other than the lock. That clone is only a Git object/ref cache: ingestion uses a `git archive` snapshot materialized at `.cache/torch-dae-snapshots/<SHA>/`, so dirty cached-clone files cannot leak into generated data. No fixture fallback exists.
 
-## Validation workflow
+Local development is explicitly opt-in:
+
+```bash
+npm run sync:data -- --source local --repo-path /path/to/torch-dae --ref v0.2.0
+```
+
+The resolver never fetches, checks out, resets, creates a worktree, or writes in that source checkout. It exports the resolved Git object to an immutable cache snapshot; dirty source working-tree content and later `HEAD` commits cannot affect the catalogue.
+
+Equivalent environment variables are `TORCH_DAE_SOURCE`, `TORCH_DAE_REPO_PATH`, and `TORCH_DAE_REF`. CLI options take precedence.
+
+## Complete local gate
 
 ```bash
 npm ci
@@ -16,12 +33,19 @@ npm run sync:data
 npm run validate:data
 npm run check
 npm run test
-npm run test:e2e
+npm run audit:comparability
+npm run audit:catalogue
 npm run build
+npm run audit:content
+npm run audit:performance
+npm run audit:deployment
+npm run test:e2e
+npm run test:a11y
+npm run test:pages
 ```
 
-Playwright uses Chromium at `127.0.0.1:4321`. Install its browser once with `npx playwright install chromium`.
+`test:e2e` serves the built static site and runs Chromium, Firefox, and WebKit. Install those browsers with `npx playwright install chromium firefox webkit`. `test:pages` rebuilds with the `/torch-dae-web/` project base and verifies internal navigation, query state, and deep-route reload.
 
-## Phase boundaries
+## Generated and cache state
 
-Phase 01 intentionally exposes skeleton pages only. Carousel behavior, detailed Model Cards, selectors, comparability, and charts belong to later phases. UI components must consume normalized data rather than importing or reinterpreting raw canonical JSON.
+`src/generated/catalogue.json`, `.cache/`, `dist/`, `.astro/`, Playwright reports, and test results are disposable and ignored. The generated catalogue is deterministic except for the explicit `generatedAt` timestamp. All arrays and joins are sorted deterministically.

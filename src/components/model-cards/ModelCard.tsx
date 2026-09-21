@@ -15,6 +15,7 @@ interface ModelCardProps {
   selected: boolean;
   offset: number;
   onSelect: (modelId: string) => void;
+  technicalCardsHref: string;
 }
 
 function backendStatusLabel(status: 'locally_verified' | 'upstream_declared'): string {
@@ -30,6 +31,7 @@ export function ModelCard({
   selected,
   offset,
   onSelect,
+  technicalCardsHref,
 }: ModelCardProps) {
   const isRuntimeVerified = model.lifecycleStatus === 'runtime_verified';
   const cardId = `model-card-${model.id}`;
@@ -195,7 +197,7 @@ export function ModelCard({
                 {reference ? (
                   <PerformanceProfile reference={reference} />
                 ) : (
-                  <a className="explore-evidence" href="/technical-cards">
+                  <a className="explore-evidence" href={technicalCardsHref}>
                     {model.technicalCardIds.length} canonical Technical Card
                     {model.technicalCardIds.length === 1 ? '' : 's'}
                     <br />

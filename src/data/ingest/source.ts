@@ -25,6 +25,12 @@ export interface ResolvedSource {
   resolvedCommitSha: string;
 }
 
+export interface SourceOptions {
+  mode?: 'local' | 'github';
+  repositoryPath?: string;
+  requestedRef?: string;
+}
+
 function git(args: string[], cwd?: string): string {
   return execFileSync('git', cwd ? ['-C', cwd, ...args] : args, {
     encoding: 'utf8',
@@ -106,9 +112,12 @@ function materializeSnapshot(projectRoot: string, repositoryRoot: string, commit
 export function resolveLocalSource(
   projectRoot: string,
   lock: SourceLock,
-  repositoryPath = process.env.TORCH_DAE_REPO_PATH ?? '/Users/stefano/Documents/torch-dae',
+  repositoryPath = process.env.TORCH_DAE_REPO_PATH,
   requestedRef = process.env.TORCH_DAE_REF ?? lock.ref,
 ): ResolvedSource {
+  if (!repositoryPath) {
+    throw new Error('Local source mode requires TORCH_DAE_REPO_PATH or --repo-path.');
+  }
   const repositoryRoot = resolve(repositoryPath);
   if (!existsSync(repositoryRoot)) {
     throw new Error(
@@ -120,20 +129,40 @@ export function resolveLocalSource(
   return { root, mode: 'local', repository: lock.repository, requestedRef, resolvedCommitSha };
 }
 
-function resolveGithub(projectRoot: string, lock: SourceLock): ResolvedSource {
-  const requestedRef = process.env.TORCH_DAE_REF ?? lock.ref;
-  const cacheRoot = resolve(projectRoot, '.cache', `torch-dae-${requestedRef.replaceAll('/', '-')}`);
-  mkdirSync(resolve(projectRoot, '.cache'), { recursive: true });
+export function resolveGithubSource(
+  projectRoot: string,
+  lock: SourceLock,
+  requestedRef = process.env.TORCH_DAE_REF ?? lock.ref,
+  repositoryUrl = `https://github.com/${lock.repository}.git`,
+): ResolvedSource {
+  const cacheParent = resolve(projectRoot, '.cache');
+  const cacheKey = requestedRef.replaceAll(/[^a-zA-Z0-9._-]/g, '-');
+  const cacheRoot = resolve(cacheParent, `torch-dae-${cacheKey}`);
+  mkdirSync(cacheParent, { recursive: true });
+  if (existsSync(cacheRoot)) {
+    try {
+      git(['rev-parse', '--is-inside-work-tree'], cacheRoot);
+    } catch {
+      rmSync(cacheRoot, { recursive: true, force: true });
+    }
+  }
   if (!existsSync(cacheRoot)) {
-    git([
-      'clone',
-      '--depth',
-      '1',
-      '--branch',
-      requestedRef,
-      `https://github.com/${lock.repository}.git`,
-      cacheRoot,
-    ]);
+    const temporaryRoot = mkdtempSync(join(cacheParent, `torch-dae-${cacheKey}.tmp-`));
+    try {
+      git([
+        'clone',
+        '--depth',
+        '1',
+        '--branch',
+        requestedRef,
+        repositoryUrl,
+        temporaryRoot,
+      ]);
+      renameSync(temporaryRoot, cacheRoot);
+    } catch (error) {
+      rmSync(temporaryRoot, { recursive: true, force: true });
+      throw new Error(`Failed to obtain GitHub release ${lock.repository}@${requestedRef}: ${String(error)}`);
+    }
   }
   const resolvedCommitSha = git(['rev-parse', 'HEAD'], cacheRoot);
   if (requestedRef === lock.ref && resolvedCommitSha !== lock.resolvedCommitSha) {
@@ -141,8 +170,9 @@ function resolveGithub(projectRoot: string, lock: SourceLock): ResolvedSource {
       `GitHub ${requestedRef} resolved to ${resolvedCommitSha}, expected locked ${lock.resolvedCommitSha}.`,
     );
   }
+  const root = materializeSnapshot(projectRoot, cacheRoot, resolvedCommitSha);
   return {
-    root: cacheRoot,
+    root,
     mode: 'github',
     repository: lock.repository,
     requestedRef,
@@ -150,10 +180,18 @@ function resolveGithub(projectRoot: string, lock: SourceLock): ResolvedSource {
   };
 }
 
-export function resolveSource(projectRoot: string): ResolvedSource {
+export function resolveSource(projectRoot: string, options: SourceOptions = {}): ResolvedSource {
   const lock = loadSourceLock(projectRoot);
-  const mode = process.env.TORCH_DAE_SOURCE ?? 'local';
-  if (mode === 'local') return resolveLocalSource(projectRoot, lock);
-  if (mode === 'github') return resolveGithub(projectRoot, lock);
+  const mode = options.mode ?? process.env.TORCH_DAE_SOURCE ?? 'github';
+  const requestedRef = options.requestedRef ?? process.env.TORCH_DAE_REF ?? lock.ref;
+  if (mode === 'local') {
+    return resolveLocalSource(
+      projectRoot,
+      lock,
+      options.repositoryPath ?? process.env.TORCH_DAE_REPO_PATH,
+      requestedRef,
+    );
+  }
+  if (mode === 'github') return resolveGithubSource(projectRoot, lock, requestedRef);
   throw new Error(`Unsupported TORCH_DAE_SOURCE=${mode}; expected local or github.`);
 }

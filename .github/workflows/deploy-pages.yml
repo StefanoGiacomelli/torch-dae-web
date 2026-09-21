@@ -1,0 +1,58 @@
+name: Deploy GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TORCH_DAE_SOURCE: github
+      ASTRO_SITE_URL: https://stefanogiacomelli.github.io
+      ASTRO_BASE_PATH: /torch-dae-web/
+    steps:
+      - name: Require deployment from main
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Refusing Pages deployment from $GITHUB_REF; manually dispatch this workflow from main." >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/configure-pages@v5
+      - run: npm ci
+      - run: npm run sync:data
+      - run: npm run validate:data
+      - run: npm run check
+      - run: npm run test
+      - run: npm run audit:catalogue
+      - run: npm run build
+      - run: npm run audit:content
+      - run: npm run audit:performance
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

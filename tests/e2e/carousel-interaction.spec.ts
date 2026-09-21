@@ -86,13 +86,11 @@ test.describe('Carousel pointer/wheel interaction hardening', () => {
 
   test('a horizontal wheel/trackpad deltaX gesture changes the selection according to policy', async ({ page }) => {
     const before = await selectedModelId(page);
-    const box = (await page.locator('.carousel-track').boundingBox())!;
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.wheel(80, 0);
-    await page.waitForTimeout(50);
-
+    await page.locator('.carousel-track').evaluate((element) => {
+      element.dispatchEvent(new WheelEvent('wheel', { deltaX: 80, deltaY: 0, bubbles: true, cancelable: true }));
+    });
+    await expect.poll(() => selectedModelId(page)).not.toBe(before);
     const after = await selectedModelId(page);
-    expect(after).not.toBe(before);
     const total = catalogue.models.length;
     const beforeIndex = catalogue.models.findIndex((m) => m.id === before);
     const afterIndex = catalogue.models.findIndex((m) => m.id === after);

@@ -133,7 +133,7 @@ test.describe('Model Cards homepage', () => {
       'href',
       'https://pypi.org/project/torch-deepaudioembedding/',
     );
-    await expect(page.getByRole('link', { name: 'Technical Cards' })).toHaveAttribute('href', '/technical-cards');
+    await expect(page.getByRole('link', { name: 'Technical Cards' })).toHaveAttribute('href', '/technical-cards/');
   });
 
   test('runtime verification preserves locally-verified vs upstream-declared semantics', async ({ page }) => {
@@ -147,6 +147,7 @@ test.describe('Model Cards homepage', () => {
 
   test('the reference runtime context is discoverable without hover, via keyboard', async ({ page }) => {
     await page.goto('/');
+    await waitForHydration(page);
     const trigger = page.locator('.performance-context > summary');
     await expect(trigger).toBeVisible();
     await trigger.focus();

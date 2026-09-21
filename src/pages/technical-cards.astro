@@ -18,7 +18,9 @@ const catalogue = catalogueData as CatalogueIndex;
       </div>
       <aside aria-label="Catalogue summary">
         <strong>{catalogue.metadata.technicalCardCount}</strong> validated cards
-        <span>{catalogue.metadata.modelCount} canonical models · source {catalogue.metadata.requestedRef}</span>
+        <span title={`Resolved source ${catalogue.metadata.resolvedCommitSha}`}>
+          {catalogue.metadata.modelCount} canonical models · source {catalogue.metadata.requestedRef} · {catalogue.metadata.resolvedCommitSha.slice(0, 8)}
+        </span>
       </aside>
     </header>
     <TechnicalCardsExplorer catalogue={catalogue} client:load />

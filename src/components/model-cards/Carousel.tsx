@@ -8,6 +8,7 @@ interface CarouselProps {
   metadata: CatalogueMetadata;
   references: Record<string, ReferenceRuntimeContext | null>;
   verificationBackends: Record<string, VerificationBackend[]>;
+  technicalCardsHref: string;
 }
 
 /** Signed offset of index `i` from `selected`, wrapped to the shortest direction around the circle. */
@@ -27,13 +28,13 @@ const CLICK_SUPPRESSION_RESET_MS = 400;
 const WHEEL_THRESHOLD_PX = 40;
 const WHEEL_COOLDOWN_MS = 350;
 
-export function Carousel({ models, metadata, references, verificationBackends }: CarouselProps) {
+export function Carousel({ models, metadata, references, verificationBackends, technicalCardsHref }: CarouselProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const total = models.length;
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dragState = useRef<{ pointerId: number; startX: number; moved: boolean } | null>(null);
   const suppressNextClickRef = useRef(false);
-  const lastWheelAt = useRef(0);
+  const lastWheelAt = useRef<number | null>(null);
 
   const goTo = useCallback(
     (index: number) => {
@@ -76,7 +77,7 @@ export function Carousel({ models, metadata, references, verificationBackends }:
     const magnitude = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : 0;
     if (Math.abs(magnitude) < WHEEL_THRESHOLD_PX) return;
     const now = performance.now();
-    if (now - lastWheelAt.current < WHEEL_COOLDOWN_MS) return;
+    if (lastWheelAt.current !== null && now - lastWheelAt.current < WHEEL_COOLDOWN_MS) return;
     lastWheelAt.current = now;
     if (magnitude > 0) goNext();
     else goPrev();
@@ -160,6 +161,7 @@ export function Carousel({ models, metadata, references, verificationBackends }:
               selected={index === selectedIndex}
               offset={offsets[index]!}
               onSelect={selectById}
+              technicalCardsHref={technicalCardsHref}
             />
           ))}
         </div>

@@ -17,6 +17,7 @@ const references = Object.fromEntries(
 const verificationBackends = Object.fromEntries(
   catalogue.models.map((model) => [model.id, getEvidencedVerificationBackends(model, catalogue)]),
 );
+const technicalCardsHref = `${import.meta.env.BASE_URL}technical-cards/`;
 ---
 
 <AppLayout title="Model Cards" active="models">
@@ -41,10 +42,12 @@ const verificationBackends = Object.fromEntries(
       metadata={catalogue.metadata}
       references={references}
       verificationBackends={verificationBackends}
+      technicalCardsHref={technicalCardsHref}
     />
 
     <FooterStrip
       catalogueRef={`${catalogue.metadata.requestedRef} · ${catalogue.metadata.resolvedCommitSha.slice(0, 8)}`}
+      resolvedCommitSha={catalogue.metadata.resolvedCommitSha}
       licenseIdentifier={catalogue.metadata.licenseIdentifier}
     />
   </section>

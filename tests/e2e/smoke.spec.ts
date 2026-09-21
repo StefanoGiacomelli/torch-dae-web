@@ -10,7 +10,7 @@ test('Model Cards route renders canonical data and toggles theme', async ({ page
 });
 
 test('Technical Cards route renders canonical contexts', async ({ page }) => {
-  await page.goto('/technical-cards');
+  await page.goto('/technical-cards/');
   await expect(page.getByRole('heading', { name: 'Technical Cards', level: 1 })).toBeVisible();
   await expect(page.getByText('9 validated cards')).toBeVisible();
   await expect(page.locator('astro-island[ssr]')).toHaveCount(0, { timeout: 10_000 });
